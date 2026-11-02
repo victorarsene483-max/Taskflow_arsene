@@ -1,0 +1,1099 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TaskFlow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Icon sprite: reuse with <svg><use href="#i-name"/></svg> -->
+    <svg
+      style="position: absolute; width: 0; height: 0; overflow: hidden"
+      aria-hidden="true"
+    >
+      <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10M10 20v-6h4v6" /></symbol>
+      <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></symbol>
+      <symbol id="i-tasks" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" /><path d="M8 12l3 3 5-6" /></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1" /></symbol>
+      <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" /></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></symbol>
+      <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 004 0" /></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+      <symbol id="i-dots" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.2" /><circle cx="12" cy="12" r="1.2" /><circle cx="12" cy="19" r="1.2" /></symbol>
+      <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" /></symbol>
+      <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 9l1-5h14l1 5M4 9a2.5 2.5 0 005 0 2.5 2.5 0 006 0 2.5 2.5 0 005 0M5 11v9h14v-9" /></symbol>
+      <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5zM6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5" /></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8zM14 3v5h5M9 13h6M9 17h6" /></symbol>
+    </svg>
+
+    <!-- ================= AUTH VIEW (login + register) ================= -->
+    <div class="auth" id="auth-view">
+      <div class="auth-card">
+        <div class="brand">
+          <div class="brand-mark"><span></span><span></span><span></span><span></span></div>
+          <span>TaskFlow</span>
+        </div>
+
+        <!-- Login -->
+        <section id="login-section">
+          <h1>Welcome back</h1>
+          <p class="sub">Log in to see your projects.</p>
+          <form class="form" id="login-form" method="post" novalidate>
+            <div class="field">
+              <label for="login-email">Email</label>
+              <input type="email" id="login-email" name="email" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label for="login-password">Password</label>
+              <input type="password" id="login-password" name="password" autocomplete="current-password" required />
+            </div>
+            <p class="form-error" id="login-error" role="alert"></p>
+            <button type="submit" class="btn btn-primary btn-block">Log in</button>
+          </form>
+          <p class="auth-switch">
+            No account yet?
+            <button class="link-btn" id="show-register" type="button">Create one</button>
+          </p>
+        </section>
+
+        <!-- Register -->
+        <section id="register-section" hidden>
+          <h1>Create your account</h1>
+          <p class="sub">It takes less than a minute.</p>
+          <form class="form" id="register-form" method="post" novalidate>
+            <div class="field">
+              <label for="reg-username">Username</label>
+              <input type="text" id="reg-username" name="username" autocomplete="username" required />
+            </div>
+            <div class="field">
+              <label for="reg-email">Email</label>
+              <input type="email" id="reg-email" name="email" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label for="reg-password">Password</label>
+              <input type="password" id="reg-password" name="password" autocomplete="new-password" required />
+            </div>
+            <p class="form-error" id="register-error" role="alert"></p>
+            <button type="submit" class="btn btn-primary btn-block">Create account</button>
+          </form>
+          <p class="auth-switch">
+            Already registered?
+            <button class="link-btn" id="show-login" type="button">Log in</button>
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <!-- ================= APP VIEW (dashboard) ================= -->
+    <div class="app" id="app-view" hidden>
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark"><span></span><span></span><span></span><span></span></div>
+          <span>TaskFlow</span>
+        </div>
+
+        <nav class="nav" aria-label="Main">
+          <a href="#dashboard" class="active"><svg><use href="#i-home" /></svg><span>Dashboard</span></a>
+          <a href="#projects"><svg><use href="#i-folder" /></svg><span>Projects</span></a>
+          <a href="#tasks"><svg><use href="#i-tasks" /></svg><span>Tasks</span></a>
+          <a href="#calendar"><svg><use href="#i-calendar" /></svg><span>Calendar</span></a>
+          <a href="#settings"><svg><use href="#i-settings" /></svg><span>Settings</span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-chip">
+            <div class="avatar" id="sidebar-avatar">A</div>
+            <div>
+              <strong id="sidebar-username">Arsene</strong>
+              <small id="sidebar-email">arsene@example.com</small>
+            </div>
+          </div>
+          <button class="logout" id="logout-btn" type="button">
+            <svg><use href="#i-logout" /></svg><span>Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      <div class="main">
+        <header class="topbar">
+          <label class="search">
+            <svg><use href="#i-search" /></svg>
+            <input type="search" id="search-input" placeholder="Search projects or tasks..." />
+          </label>
+          <div class="topbar-right">
+            <button class="bell" type="button" aria-label="Notifications">
+              <svg><use href="#i-bell" /></svg>
+            </button>
+            <div class="topbar-user">
+              <div class="avatar pink" id="topbar-avatar">A</div>
+              <span id="topbar-username">Arsene</span>
+            </div>
+          </div>
+        </header>
+
+        <main class="content" id="dashboard">
+          <div class="greeting">
+            <div>
+              <h1>
+                <span id="greeting-time">Good morning</span>,
+                <span id="greeting-name">Arsene</span>👋🏻
+              </h1>
+              <p>Here's what's happening with your projects today.</p>
+            </div>
+            <button class="btn btn-accent" id="new-project-btn" type="button">
+              <svg><use href="#i-plus" /></svg> New Project
+            </button>
+          </div>
+
+          <!-- Dashboard statistics: all four are real (filled by loadStats) -->
+          <section class="stats" aria-label="Statistics">
+            <div class="stat projects">
+              <div class="icon"><svg><use href="#i-folder" /></svg></div>
+              <div><span>Total Projects</span><strong id="stat-projects">0</strong></div>
+            </div>
+            <div class="stat tasks">
+              <div class="icon"><svg><use href="#i-check" /></svg></div>
+              <div><span>Total Tasks</span><strong id="stat-tasks">0</strong></div>
+            </div>
+            <div class="stat done">
+              <div class="icon"><svg><use href="#i-check" /></svg></div>
+              <div><span>Completed</span><strong id="stat-completed">0</strong></div>
+            </div>
+            <div class="stat progress">
+              <div class="icon"><svg><use href="#i-clock" /></svg></div>
+              <div><span>In Progress</span><strong id="stat-progress">0</strong></div>
+            </div>
+          </section>
+
+          <!-- Project cards (filled by loadProjects) -->
+          <div class="section-head">
+            <h2>Your Projects</h2>
+            <a href="#projects" class="link-btn">View All</a>
+          </div>
+
+          <section class="projects-grid" id="projects-grid"></section>
+
+          <!-- Recent tasks (filled by loadTasks) -->
+          <section class="panel">
+            <div class="section-head">
+              <h2>Recent Tasks</h2>
+              <div>
+                <button
+                  class="btn btn-primary"
+                  id="new-task-btn"
+                  type="button"
+                  style="padding: 8px 16px; margin-right: 12px"
+                >
+                  <svg><use href="#i-plus" /></svg> New Task
+                </button>
+                <a href="#tasks" class="link-btn">View All</a>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="col-check"></th>
+                    <th>Task</th>
+                    <th>Project</th>
+                    <th>Due Date</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="tasks-body"></tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- ================= MODALS ================= -->
+    <!-- Open with dialog.showModal(), close with dialog.close() -->
+    <dialog id="project-dialog">
+      <h2 id="project-dialog-title">New project</h2>
+      <form class="form" id="project-form" method="post" novalidate>
+        <div class="field">
+          <label for="project-name">Name</label>
+          <input type="text" id="project-name" name="name" required />
+        </div>
+        <div class="field">
+          <label for="project-description">Description</label>
+          <textarea id="project-description" name="description"></textarea>
+        </div>
+        <p class="form-error" id="project-error" role="alert"></p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+          <button type="submit" class="btn btn-primary" id="project-submit-btn">Create project</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="task-dialog">
+      <h2>New task</h2>
+      <form class="form" id="task-form" method="post" novalidate>
+        <div class="field">
+          <label for="task-project">Project</label>
+          <select id="task-project" name="project_id" required>
+            <!-- options are filled from /api/projects by fillProjectOptions() -->
+          </select>
+        </div>
+        <div class="field">
+          <label for="task-title">Title</label>
+          <input type="text" id="task-title" name="title" required />
+        </div>
+        <div class="field">
+          <label for="task-description">Description</label>
+          <textarea id="task-description" name="description"></textarea>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="task-priority">Priority</label>
+            <select id="task-priority" name="priority">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="task-status">Status</label>
+            <select id="task-status" name="status">
+              <option value="pending" selected>Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="task-due">Due date</label>
+          <input type="date" id="task-due" name="due_date" />
+        </div>
+        <p class="form-error" id="task-error" role="alert"></p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Create task</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- ================= MENUS ================= -->
+    <!-- One shared menu per kind. JS moves it under whichever dots button was clicked. -->
+    <div class="menu" id="project-menu" role="menu" hidden>
+      <button type="button" id="project-edit-btn" role="menuitem">Edit project</button>
+      <button type="button" class="danger" id="project-delete-btn" role="menuitem">
+        Delete project
+      </button>
+    </div>
+
+    <div class="menu" id="task-menu" role="menu" hidden>
+      <button type="button" class="danger" id="task-delete-btn" role="menuitem">
+        Delete task
+      </button>
+    </div>
+
+    <script>
+      // ===== Helpers =====
+      const $ = (selector) => document.querySelector(selector);
+
+      // ===== View switching (auth <-> app) =====
+      const authView = $("#auth-view");
+      const appView = $("#app-view");
+
+      function showView(name) {
+        // 'auth' or 'app'
+        authView.hidden = name !== "auth";
+        appView.hidden = name !== "app";
+      }
+
+      // ===== Token =====
+      function getToken() {
+        try {
+          return localStorage.getItem("token");
+        } catch {
+          return null;
+        }
+      }
+
+      // ===== Time-based greeting =====
+      function getGreeting() {
+        const hour = new Date().getHours(); // 0-23, user's local time
+        if (hour < 12) return "Good morning";
+        if (hour < 17) return "Good afternoon";
+        return "Good evening";
+      }
+
+      function setGreeting() {
+        const el = $("#greeting-time");
+        if (el) el.textContent = getGreeting(); // a missing element must not kill the script
+      }
+
+      // ===== Current user =====
+      async function loadUser() {
+        try {
+          const response = await fetch("/api/auth/me", {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          });
+
+          // Stale or invalid token: clear it and return to the login screen
+          if (response.status === 401) {
+            localStorage.removeItem("token");
+            showView("auth");
+            return;
+          }
+          if (!response.ok) return;
+
+          const user = await response.json();
+          const initial = user.username[0].toUpperCase();
+
+          // textContent (never innerHTML): usernames are typed by users
+          $("#sidebar-username").textContent = user.username;
+          $("#topbar-username").textContent = user.username;
+          $("#greeting-name").textContent = user.username;
+          $("#sidebar-email").textContent = user.email;
+          $("#sidebar-avatar").textContent = initial;
+          $("#topbar-avatar").textContent = initial;
+        } catch (err) {
+          console.error("Could not load user:", err);
+        }
+      }
+
+      // ===== Statistics (the four cards at the top) =====
+      async function loadStats() {
+        try {
+          const response = await fetch("/api/tasks/stats", {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          });
+
+          if (response.status === 401) {
+            localStorage.removeItem("token");
+            showView("auth");
+            return;
+          }
+          if (!response.ok) return;
+
+          const stats = await response.json();
+          $("#stat-projects").textContent = stats.projects;
+          $("#stat-tasks").textContent = stats.tasks;
+          $("#stat-completed").textContent = stats.completed;
+          $("#stat-progress").textContent = stats.in_progress;
+        } catch (err) {
+          console.error("Could not load stats:", err);
+        }
+      }
+
+      // ===== Projects =====
+      const PROJECT_COLORS = ["c-orange", "c-pink", "c-yellow", "c-ink"];
+      const projectsById = new Map(); // filled by loadProjects, used by Edit
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("/api/projects", {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          });
+
+          // Stale or invalid token: clear it and return to the login screen
+          if (response.status === 401) {
+            localStorage.removeItem("token");
+            showView("auth");
+            return;
+          }
+          if (!response.ok) return;
+
+          loadStats();
+
+          const projects = await response.json();
+          const grid = $("#projects-grid");
+          grid.replaceChildren();
+
+          projectsById.clear();
+          projects.forEach((p) => projectsById.set(String(p.id), p));
+
+          // Empty state
+          if (projects.length === 0) {
+            const empty = document.createElement("p");
+            empty.textContent = "No projects yet. Create your first one.";
+            empty.style.gridColumn = "1 / -1";
+            empty.style.color = "var(--muted)";
+            grid.append(empty);
+            return;
+          }
+
+          projects.forEach((project, index) => {
+            const color = PROJECT_COLORS[index % PROJECT_COLORS.length];
+
+            const card = document.createElement("article");
+            card.className = "project-card";
+            card.dataset.id = project.id;
+
+            // Fixed markup that WE wrote: no user data goes into this string
+            card.innerHTML = `
+              <div class="project-top">
+                <div class="project-icon ${color}"><svg><use href="#i-folder" /></svg></div>
+                <button class="kebab" type="button" aria-label="Project actions">
+                  <svg><use href="#i-dots" /></svg>
+                </button>
+              </div>
+              <h3></h3>
+              <p></p>
+              <div class="progress-row">
+                <div class="progress-track">
+                  <div class="progress-bar ${color}" style="width: 0%"></div>
+                </div>
+                <span>0%</span>
+              </div>
+              <div class="task-count">
+                <svg><use href="#i-list" /></svg> <span class="task-count-text">0 tasks</span>
+              </div>
+            `;
+
+            // User-typed text goes in with textContent ONLY
+            card.querySelector("h3").textContent = project.name;
+            card.querySelector("p").textContent = project.description;
+
+            // Real progress numbers from the server
+            const total = project.task_count;
+            const pct = total
+              ? Math.round((project.completed_count / total) * 100)
+              : 0;
+            card.querySelector(".progress-bar").style.width = `${pct}%`;
+            card.querySelector(".progress-row span").textContent = `${pct}%`;
+            card.querySelector(".task-count-text").textContent =
+              `${total} ${total === 1 ? "task" : "tasks"}`;
+
+            grid.append(card);
+          });
+        } catch (err) {
+          console.error("Could not load projects:", err);
+        }
+      }
+
+      // Fills the New Task dropdown with the user's real projects.
+      // Returns true when the dialog is safe to open.
+      async function fillProjectOptions() {
+        const select = $("#task-project");
+        select.replaceChildren();
+
+        try {
+          const response = await fetch("/api/projects", {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          });
+
+          if (response.status === 401) {
+            localStorage.removeItem("token");
+            showView("auth");
+            return false;
+          }
+          if (!response.ok) return false;
+
+          const projects = await response.json();
+
+          // No projects yet: show a disabled hint instead of an empty list
+          if (projects.length === 0) {
+            const option = document.createElement("option");
+            option.textContent = "Create a project first";
+            option.value = "";
+            option.disabled = true;
+            option.selected = true;
+            select.append(option);
+            return true;
+          }
+
+          projects.forEach((project) => {
+            const option = document.createElement("option");
+            option.value = project.id;
+            option.textContent = project.name; // user text: textContent only
+            select.append(option);
+          });
+          return true;
+        } catch (err) {
+          console.error("Could not load projects for the dropdown:", err);
+          return false;
+        }
+      }
+
+      // ===== Tasks =====
+      const STATUS_LABELS = {
+        pending: "Pending",
+        in_progress: "In Progress",
+        completed: "Completed",
+      };
+      const PRIORITY_LABELS = { low: "Low", medium: "Medium", high: "High" };
+
+      async function loadTasks() {
+        try {
+          const response = await fetch("/api/tasks", {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          });
+
+          // Stale or invalid token: clear it and return to the login screen
+          if (response.status === 401) {
+            localStorage.removeItem("token");
+            showView("auth");
+            return;
+          }
+          if (!response.ok) return;
+
+          loadStats();
+
+          const tasks = await response.json();
+
+          const body = $("#tasks-body");
+          body.replaceChildren();
+
+          // Empty state: one row, one cell spanning all seven columns
+          if (tasks.length === 0) {
+            const row = body.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 7;
+            cell.textContent = "No tasks yet. Create your first one.";
+            cell.style.color = "var(--muted)";
+            return;
+          }
+
+          tasks.forEach((task) => {
+            const row = body.insertRow();
+            row.dataset.id = task.id;
+
+            const check = document.createElement("input");
+            check.type = "checkbox";
+            check.checked = task.status === "completed";
+            check.setAttribute("aria-label", "Mark completed");
+            row.insertCell().append(check);
+
+            // Ticking marks the task completed, unticking sets it back to pending.
+            // This must live INSIDE the loop, because `check` only exists here.
+            check.addEventListener("change", async () => {
+              const newStatus = check.checked ? "completed" : "pending";
+              check.disabled = true;
+
+              try {
+                const res = await fetch(`/api/tasks/${task.id}/status`, {
+                  method: "PATCH",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${getToken()}`,
+                  },
+                  body: JSON.stringify({ status: newStatus }),
+                });
+
+                if (res.status === 401) {
+                  localStorage.removeItem("token");
+                  showView("auth");
+                  return;
+                }
+
+                if (!res.ok) {
+                  check.checked = !check.checked; // the server refused: put the box back
+                  check.disabled = false;
+                  return;
+                }
+
+                loadTasks(); // success: redraw from the server
+                loadProjects(); // the project's progress bar changed too
+              } catch (err) {
+                console.error("Could not update the task:", err);
+                check.checked = !check.checked;
+                check.disabled = false;
+              }
+            });
+
+            // User-typed text goes in with textContent ONLY
+            row.insertCell().textContent = task.title;
+
+            const projectCell = row.insertCell();
+            projectCell.className = "muted";
+            projectCell.textContent = task.project_name;
+
+            const dueCell = row.insertCell();
+            dueCell.className = "muted";
+            dueCell.textContent = task.due_date || "—";
+
+            // The class comes from our own fixed values (enforced by CHECK)
+            const priority = document.createElement("span");
+            priority.className = `badge ${task.priority}`;
+            priority.textContent = PRIORITY_LABELS[task.priority];
+            row.insertCell().append(priority);
+
+            const status = document.createElement("span");
+            status.className = `badge ${task.status}`;
+            status.textContent = STATUS_LABELS[task.status];
+            row.insertCell().append(status);
+
+            // Fixed icon markup that WE wrote
+            const kebab = document.createElement("button");
+            kebab.className = "kebab";
+            kebab.type = "button";
+            kebab.setAttribute("aria-label", "Task actions");
+            kebab.innerHTML = '<svg><use href="#i-dots" /></svg>';
+            row.insertCell().append(kebab);
+          });
+        } catch (err) {
+          console.error("Could not load tasks:", err);
+        }
+      }
+
+      // ===== On page load =====
+      // No saved token -> login page. Token -> dashboard + real data.
+      setGreeting();
+      showView(getToken() ? "app" : "auth");
+      if (getToken()) {
+        loadUser();
+        loadProjects();
+        loadTasks();
+      }
+
+      // ===== Login <-> Register toggle =====
+      const loginSection = $("#login-section");
+      const registerSection = $("#register-section");
+
+      $("#show-register").addEventListener("click", () => {
+        loginSection.hidden = true;
+        registerSection.hidden = false;
+      });
+      $("#show-login").addEventListener("click", () => {
+        registerSection.hidden = true;
+        loginSection.hidden = false;
+      });
+
+      // ===== Logout =====
+      $("#logout-btn").addEventListener("click", () => {
+        try {
+          localStorage.removeItem("token");
+        } catch {}
+        // Don't leave the previous user's data in the page
+        $("#projects-grid").replaceChildren();
+        $("#tasks-body").replaceChildren();
+        ["#stat-projects", "#stat-tasks", "#stat-completed", "#stat-progress"].forEach(
+          (id) => ($(id).textContent = "0"),
+        );
+        $("#sidebar-username").textContent = "";
+        $("#topbar-username").textContent = "";
+        $("#greeting-name").textContent = "";
+        $("#sidebar-email").textContent = "";
+        $("#sidebar-avatar").textContent = "";
+        $("#topbar-avatar").textContent = "";
+        showView("auth");
+      });
+
+      // ===== Dialogs (new/edit project, new task) =====
+      const projectDialog = $("#project-dialog");
+      const taskDialog = $("#task-dialog");
+
+      // null = creating a new project, otherwise the id of the project being edited
+      let editingProjectId = null;
+
+      function openProjectDialog(project = null) {
+        editingProjectId = project ? project.id : null;
+        $("#project-dialog-title").textContent = project
+          ? "Edit project"
+          : "New project";
+        $("#project-submit-btn").textContent = project
+          ? "Save changes"
+          : "Create project";
+        if (project) {
+          $("#project-name").value = project.name;
+          $("#project-description").value = project.description ?? "";
+        }
+        projectDialog.showModal();
+      }
+
+      $("#new-project-btn").addEventListener("click", () => openProjectDialog());
+
+      // Fill the project dropdown first, then open the dialog
+      $("#new-task-btn").addEventListener("click", async () => {
+        const ok = await fillProjectOptions();
+        if (ok) taskDialog.showModal();
+      });
+
+      document.querySelectorAll("dialog").forEach((dialog) => {
+        // Cancel buttons
+        dialog.querySelectorAll("[data-close]").forEach((btn) => {
+          btn.addEventListener("click", () => dialog.close());
+        });
+        // Clicking the dark backdrop closes it
+        dialog.addEventListener("click", (e) => {
+          if (e.target !== dialog) return;
+          const r = dialog.getBoundingClientRect();
+          const inside =
+            e.clientX >= r.left &&
+            e.clientX <= r.right &&
+            e.clientY >= r.top &&
+            e.clientY <= r.bottom;
+          if (!inside) dialog.close();
+        });
+        // Reset the form and its error message whenever the dialog closes
+        dialog.addEventListener("close", () => {
+          const form = dialog.querySelector("form");
+          form.reset();
+          form.querySelector(".form-error").textContent = "";
+        });
+      });
+
+      // Leave edit mode whenever the project dialog closes
+      projectDialog.addEventListener("close", () => {
+        editingProjectId = null;
+        $("#project-dialog-title").textContent = "New project";
+        $("#project-submit-btn").textContent = "Create project";
+      });
+
+      // ===== Sidebar active link =====
+      document.querySelectorAll(".nav a").forEach((link) => {
+        link.addEventListener("click", () => {
+          document
+            .querySelectorAll(".nav a")
+            .forEach((l) => l.classList.remove("active"));
+          link.classList.add("active");
+        });
+      });
+
+      // ===== Form submissions =====
+      $("#register-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const errorBox = $("#register-error");
+        errorBox.textContent = "";
+
+        const payload = {
+          username: $("#reg-username").value,
+          email: $("#reg-email").value,
+          password: $("#reg-password").value,
+        };
+
+        try {
+          const response = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            errorBox.textContent = data.error || "Registration failed";
+            return;
+          }
+
+          // Success: clear the form and send the user to the login form
+          e.target.reset();
+          registerSection.hidden = true;
+          loginSection.hidden = false;
+        } catch (err) {
+          errorBox.textContent =
+            "Could not reach the server. Please try again.";
+        }
+      });
+
+      $("#login-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const errorBox = $("#login-error");
+        errorBox.textContent = "";
+
+        const payload = {
+          email: $("#login-email").value,
+          password: $("#login-password").value,
+        };
+
+        try {
+          const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            errorBox.textContent = data.error || "Login failed";
+            return;
+          }
+
+          // Success: save the token FIRST (the loaders read it), then show the dashboard
+          localStorage.setItem("token", data.token);
+          e.target.reset();
+          showView("app");
+          setGreeting();
+          loadUser();
+          loadProjects();
+          loadTasks();
+        } catch (err) {
+          errorBox.textContent =
+            "Could not reach the server. Please try again.";
+        }
+      });
+
+      // Creates a project, or saves changes when editingProjectId is set
+      $("#project-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const errorBox = $("#project-error");
+        errorBox.textContent = "";
+
+        const payload = {
+          name: $("#project-name").value,
+          description: $("#project-description").value,
+        };
+
+        const isEdit = editingProjectId !== null;
+
+        try {
+          const response = await fetch(
+            isEdit ? `/api/projects/${editingProjectId}` : "/api/projects",
+            {
+              method: isEdit ? "PUT" : "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${getToken()}`,
+              },
+              body: JSON.stringify(payload),
+            },
+          );
+
+          // A stale or invalid token: clear it and return to the login screen
+          if (response.status === 401) {
+            localStorage.removeItem("token");
+            showView("auth");
+            return;
+          }
+
+          const data = await response.json();
+
+          // Any other failure: show the server's message and keep the dialog open
+          if (!response.ok) {
+            errorBox.textContent = data.error || "Could not save the project";
+            return;
+          }
+
+          // Success: close the dialog (resets the form), then reload the list
+          projectDialog.close();
+          loadProjects();
+        } catch (err) {
+          errorBox.textContent =
+            "Could not reach the server. Please try again.";
+        }
+      });
+
+      $("#task-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const errorBox = $("#task-error");
+        errorBox.textContent = "";
+
+        const payload = {
+          project_id: Number($("#task-project").value),
+          title: $("#task-title").value,
+          description: $("#task-description").value,
+          priority: $("#task-priority").value,
+          status: $("#task-status").value,
+          due_date: $("#task-due").value || null,
+        };
+
+        // A friendly message instead of a server-side validation error
+        if (!payload.project_id) {
+          errorBox.textContent = "Please choose a project";
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/tasks", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${getToken()}`,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (response.status === 401) {
+            localStorage.removeItem("token");
+            showView("auth");
+            return;
+          }
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            errorBox.textContent = data.error || "Could not create the task";
+            return;
+          }
+
+          // Success: close the dialog (resets the form), then reload table + cards
+          taskDialog.close();
+          loadTasks();
+          loadProjects(); // the project's task count changed
+        } catch (err) {
+          errorBox.textContent =
+            "Could not reach the server. Please try again.";
+        }
+      });
+
+      // Clear a stale error message as soon as the user edits the form
+      $("#task-form").addEventListener("input", () => {
+        $("#task-error").textContent = "";
+      });
+
+      // ===== Project card menu (Edit / Delete) =====
+      // ONE listener on the grid handles every card, even cards drawn later
+      // (event delegation). loadProjects() rebuilds the cards on every reload.
+      const projectMenu = $("#project-menu");
+      let menuProjectId = null;
+
+      function closeProjectMenu() {
+        projectMenu.hidden = true;
+        menuProjectId = null;
+      }
+
+      $("#projects-grid").addEventListener("click", (e) => {
+        const kebab = e.target.closest(".kebab"); // the click may land on the svg inside
+        if (!kebab) return;
+
+        const card = kebab.closest("[data-id]"); // data-id was set in loadProjects()
+        if (!card) return;
+
+        e.stopPropagation(); // stop the click from reaching the "close the menu" listener below
+        closeTaskMenu(); // only one menu open at a time
+        menuProjectId = card.dataset.id;
+
+        const r = kebab.getBoundingClientRect();
+        projectMenu.hidden = false; // show first, so its width can be measured
+        projectMenu.style.top = `${r.bottom + 4}px`;
+        projectMenu.style.left = `${Math.max(8, r.right - projectMenu.offsetWidth)}px`;
+      });
+
+      // Any other click, Escape, scrolling or resizing closes the menu
+      document.addEventListener("click", (e) => {
+        if (!projectMenu.contains(e.target)) closeProjectMenu();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeProjectMenu();
+      });
+      window.addEventListener("scroll", closeProjectMenu, true);
+      window.addEventListener("resize", closeProjectMenu);
+
+      $("#project-edit-btn").addEventListener("click", () => {
+        const project = projectsById.get(String(menuProjectId)); // read BEFORE closing
+        closeProjectMenu();
+        if (project) openProjectDialog(project);
+      });
+
+      $("#project-delete-btn").addEventListener("click", async () => {
+        const id = menuProjectId;
+        closeProjectMenu();
+        if (!id) return;
+
+        // Deleting is permanent, so ask first
+        if (!confirm("Delete this project and all its tasks? This cannot be undone.")) {
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/projects/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${getToken()}` },
+          });
+
+          if (res.status === 401) {
+            localStorage.removeItem("token");
+            showView("auth");
+            return;
+          }
+
+          // 204 = deleted. 404 = already gone. Either way, refresh what the page shows.
+          // (A 204 has no body, so we never call res.json() here.)
+          if (!res.ok && res.status !== 404) {
+            alert("Could not delete the project. Please try again.");
+            return;
+          }
+
+          loadProjects();
+          loadTasks(); // its tasks were deleted too (ON DELETE CASCADE)
+        } catch (err) {
+          console.error("Could not delete the project:", err);
+          alert("Could not reach the server. Please try again.");
+        }
+      });
+
+      // ===== Task row menu (Delete) =====
+      const taskMenu = $("#task-menu");
+      let menuTaskId = null;
+
+      function closeTaskMenu() {
+        taskMenu.hidden = true;
+        menuTaskId = null;
+      }
+
+      // One listener on the table body covers every row, even rows redrawn later
+      $("#tasks-body").addEventListener("click", (e) => {
+        const kebab = e.target.closest(".kebab");
+        if (!kebab) return;
+
+        const row = kebab.closest("[data-id]");
+        if (!row) return;
+
+        e.stopPropagation();
+        closeProjectMenu(); // only one menu open at a time
+        menuTaskId = row.dataset.id;
+
+        const r = kebab.getBoundingClientRect();
+        taskMenu.hidden = false;
+        taskMenu.style.top = `${r.bottom + 4}px`;
+        taskMenu.style.left = `${Math.max(8, r.right - taskMenu.offsetWidth)}px`;
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!taskMenu.contains(e.target)) closeTaskMenu();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeTaskMenu();
+      });
+      window.addEventListener("scroll", closeTaskMenu, true);
+      window.addEventListener("resize", closeTaskMenu);
+
+      $("#task-delete-btn").addEventListener("click", async () => {
+        const id = menuTaskId; // read BEFORE closing, closing resets it to null
+        closeTaskMenu();
+        if (!id) return;
+
+        if (!confirm("Delete this task? This cannot be undone.")) return;
+
+        try {
+          const res = await fetch(`/api/tasks/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${getToken()}` },
+          });
+
+          if (res.status === 401) {
+            localStorage.removeItem("token");
+            showView("auth");
+            return;
+          }
+
+          // 204 = deleted, 404 = already gone. Either way, refresh.
+          if (!res.ok && res.status !== 404) {
+            alert("Could not delete the task. Please try again.");
+            return;
+          }
+
+          loadTasks();
+          loadProjects(); // the project's task count and progress changed
+        } catch (err) {
+          console.error("Could not delete the task:", err);
+          alert("Could not reach the server. Please try again.");
+        }
+      });
+    </script>
+  </body>
+</html>

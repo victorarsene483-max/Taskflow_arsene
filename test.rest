@@ -1,0 +1,313 @@
+### Health check
+GET http://localhost:9777/api/health
+
+### Register a user
+POST http://localhost:9777/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "arsene",
+  "email": "arsene@test.com",
+  "password": "mypassword123"
+}
+
+### Login: valid (send this FIRST, it supplies the token)
+# @name login
+POST http://localhost:9777/api/auth/login
+Content-Type: application/json
+
+{ "email": "arsene@test.com", "password": "mypassword123" }
+
+### Login: wrong password
+POST http://localhost:9777/api/auth/login
+Content-Type: application/json
+
+{ "email": "arsene@test.com", "password": "wrongpassword" }
+
+### Login: unknown email
+POST http://localhost:9777/api/auth/login
+Content-Type: application/json
+
+{ "email": "nobody@test.com", "password": "whatever123" }
+
+### Login: empty body
+POST http://localhost:9777/api/auth/login
+Content-Type: application/json
+
+{}
+
+### Me: valid token
+GET http://localhost:9777/api/auth/me
+Authorization: Bearer {{login.response.body.token}}
+
+### Me: no header
+GET http://localhost:9777/api/auth/me
+
+### Me: garbage token
+GET http://localhost:9777/api/auth/me
+Authorization: Bearer abc123
+### Create project: valid
+POST http://localhost:9777/api/projects
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "name": "My first project", "description": "Testing the endpoint" }
+
+### Create project: owner_id in body is ignored
+POST http://localhost:9777/api/projects
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "name": "Sneaky", "owner_id": 999 }
+
+### Create project: no token
+POST http://localhost:9777/api/projects
+Content-Type: application/json
+
+{ "name": "Should fail" }
+
+### Create project: empty name
+POST http://localhost:9777/api/projects
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "name": "   " }
+### List projects: mine
+GET http://localhost:9777/api/projects
+Authorization: Bearer {{login.response.body.token}}
+
+### List projects: no token
+GET http://localhost:9777/api/projects
+
+
+
+
+
+
+
+### Register user 2
+POST http://localhost:9777/api/auth/register
+Content-Type: application/json
+
+{ "username": "second", "email": "second@test.com", "password": "mypassword123" }
+
+### Login user 2
+# @name login2
+POST http://localhost:9777/api/auth/login
+Content-Type: application/json
+
+{ "email": "second@test.com", "password": "mypassword123" }
+
+### List projects: user 2 (before creating any, should be empty)
+GET http://localhost:9777/api/projects
+Authorization: Bearer {{login2.response.body.token}}
+
+### Create project as user 2
+POST http://localhost:9777/api/projects
+Authorization: Bearer {{login2.response.body.token}}
+Content-Type: application/json
+
+{ "name": "Second user's project" }
+
+### List projects: user 2 (after creating one)
+GET http://localhost:9777/api/projects
+Authorization: Bearer {{login2.response.body.token}}
+
+
+
+### Get project: mine (use one of your project ids)
+GET http://localhost:9777/api/projects/1
+Authorization: Bearer {{login.response.body.token}}
+
+### Get project: belongs to user 2 (use user 2's project id)
+GET http://localhost:9777/api/projects/5
+Authorization: Bearer {{login.response.body.token}}
+
+### Get project: does not exist
+GET http://localhost:9777/api/projects/99999
+Authorization: Bearer {{login.response.body.token}}
+
+### Get project: bad id
+GET http://localhost:9777/api/projects/abc
+Authorization: Bearer {{login.response.body.token}}
+
+### Get project: no token
+GET http://localhost:9777/api/projects/1
+
+
+
+### Create project as user 1
+# @name createMine
+POST http://localhost:9777/api/projects
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "name": "Mine for update test" }
+
+### Create project as user 2
+# @name createTheirs
+POST http://localhost:9777/api/projects
+Authorization: Bearer {{login2.response.body.token}}
+Content-Type: application/json
+
+{ "name": "Theirs for update test" }
+
+
+
+
+
+
+
+
+
+### Update: mine (expect 200, updated_at later than created_at)
+PUT http://localhost:9777/api/projects/{{createMine.response.body.id}}
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "name": "Renamed project", "description": "Edited" }
+
+### Update: user 2's project with my token (expect 404)
+PUT http://localhost:9777/api/projects/{{createTheirs.response.body.id}}
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "name": "Hacked" }
+
+### Update: empty name (expect 400)
+PUT http://localhost:9777/api/projects/{{createMine.response.body.id}}
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "name": "  " }
+
+### Update: bad id (expect 400)
+PUT http://localhost:9777/api/projects/abc
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "name": "x" }
+
+### Update: owner_id in body is ignored
+PUT http://localhost:9777/api/projects/{{createMine.response.body.id}}
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "name": "Still mine", "owner_id": 999 }
+
+### Update: no token (expect 401)
+PUT http://localhost:9777/api/projects/{{createMine.response.body.id}}
+Content-Type: application/json
+
+{ "name": "x" }
+
+
+
+### Create project to delete
+# @name createDoomed
+POST http://localhost:9777/api/projects
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "name": "Delete me" }
+
+### Delete: mine (expect 204, no body)
+DELETE http://localhost:9777/api/projects/{{createDoomed.response.body.id}}
+Authorization: Bearer {{login.response.body.token}}
+
+### Delete: same id again (expect 404)
+DELETE http://localhost:9777/api/projects/{{createDoomed.response.body.id}}
+Authorization: Bearer {{login.response.body.token}}
+
+### Delete: user 2's project with my token (expect 404)
+DELETE http://localhost:9777/api/projects/{{createTheirs.response.body.id}}
+Authorization: Bearer {{login.response.body.token}}
+
+### Delete: bad id (expect 400)
+DELETE http://localhost:9777/api/projects/abc
+Authorization: Bearer {{login.response.body.token}}
+
+### Delete: no token (expect 401)
+DELETE http://localhost:9777/api/projects/1
+
+
+### Create task: valid, defaults
+POST http://localhost:9777/api/tasks
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "project_id": 1, "title": "My first task" }
+
+### Create task: with all fields
+POST http://localhost:9777/api/tasks
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "project_id": 1, "title": "Full task", "description": "All fields", "status": "in_progress", "priority": "high", "due_date": "2026-11-20" }
+
+### Create task: user 2's project (expect 404)
+POST http://localhost:9777/api/tasks
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "project_id": 5, "title": "Sneaky" }
+
+### Create task: bad status (expect 400)
+POST http://localhost:9777/api/tasks
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "project_id": 1, "title": "x", "status": "done" }
+
+### Create task: no title (expect 400)
+POST http://localhost:9777/api/tasks
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "project_id": 1 }
+
+### Create task: no token (expect 401)
+POST http://localhost:9777/api/tasks
+Content-Type: application/json
+
+{ "project_id": 1, "title": "x" }
+
+### List tasks: mine
+GET http://localhost:9777/api/tasks
+Authorization: Bearer {{login.response.body.token}}
+
+### List tasks: user 2
+GET http://localhost:9777/api/tasks
+Authorization: Bearer {{login2.response.body.token}}
+
+### List tasks: no token
+GET http://localhost:9777/api/tasks
+
+
+
+### Task status: mark completed (expect 200)
+PATCH http://localhost:9777/api/tasks/1/status
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "status": "completed" }
+
+### Task status: bad value (expect 400)
+PATCH http://localhost:9777/api/tasks/1/status
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "status": "done" }
+
+### Task status: bad id (expect 400)
+PATCH http://localhost:9777/api/tasks/abc/status
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "status": "pending" }
+
+### Task status: no token (expect 401)
+PATCH http://localhost:9777/api/tasks/1/status
+Content-Type: application/json
+
+{ "status": "pending" }
