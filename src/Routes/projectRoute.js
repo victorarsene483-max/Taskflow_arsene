@@ -1,5 +1,5 @@
 import express from 'express';
-import authMiddleware from '../Middleware/authMiddleware.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 import {
   createProject,
   listProjects,
