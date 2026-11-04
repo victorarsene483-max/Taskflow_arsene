@@ -1,5 +1,5 @@
 import { Router } from "express";
-import authMiddleware from "../middleware/authMiddleware.js";
+import authMiddleware from "../Middleware/authMiddleware.js";
 import {
   createTask,
   listTask,
