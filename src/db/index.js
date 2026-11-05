@@ -1,16 +1,9 @@
 import pg from 'pg';
 
-const baseOptions = {
-  max: 10, 
-  idleTimeoutMillis: 30000, 
-  connectionTimeoutMillis: 5000, 
-};
-
-const connectionOptions = process.env.DATABASE_URL
-  ? {
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-    }
+// On Render, DATABASE_URL holds the full connection string.
+// Locally, the separate DB_* variables from .env are used.
+const config = process.env.DATABASE_URL
+  ? { connectionString: process.env.DATABASE_URL }
   : {
       host: process.env.DB_HOST,
       port: Number(process.env.DB_PORT),
@@ -19,10 +12,6 @@ const connectionOptions = process.env.DATABASE_URL
       password: process.env.DB_PASSWORD,
     };
 
-const pool = new pg.Pool({ ...baseOptions, ...connectionOptions });
-
-pool.on('error', (err) => {
-  console.error('Unexpected database pool error:', err.message);
-});
+const pool = new pg.Pool(config);
 
 export default pool;
